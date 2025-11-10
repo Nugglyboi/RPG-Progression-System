@@ -55,7 +55,7 @@ class Player:
     def __init__(self):
         self._progression = parser.read_csv("data/Progression.csv", Progression)
 
-    def get_exp(self, amount: int):
+    def award_exp(self, amount: int):
         self._exp += amount
 
         for p in self._progression:
@@ -64,19 +64,40 @@ class Player:
                     self.level += 1
                     self._exp -= p.XP_to_Next
 
-    def get_loot(self, loot: Loot):
+    def award_gold(self, amount: int):
+        self.gold += amount
+
+    def award_loot(self, loot: Loot):
         self._loot.append(loot)
         self.equipment.equip_best(self._loot)
+
+    def culumative_exp(self) -> int:
+        total = self._exp
+        
+        for p in self._progression:
+            if p.Level < self.level:
+                total += p.XP_to_Next
+
+        return total
 
 
 class Inputs:
     combat_chance: float
 
 
-class World:
+class World(parser.CSVRow):
     BeatNum: int
     Stage: str
     BeatName: str
     BeatStartStep: int
     ZoneLevel: int
     BeatDC: int
+
+
+class Statistics:
+    Success: bool = False
+    Death: bool = False
+    XP_Earned: int = 0
+    Gold_Earned: int = 0
+    DropID: int = 0
+    Gold_Spent: int = 0
