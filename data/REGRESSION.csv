@@ -1,0 +1,10 @@
+Audit_Status,PASS
+RowCount,1
+CombatRows,0
+NonCombatRows,1
+Success_Numeric,1
+Success_Only01,0
+No_VALUE_Errors,0
+XP_Changes_NC,5
+Rep_Changes_NC,1
+Gold_Changes_NC,25

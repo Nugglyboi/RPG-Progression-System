@@ -1,0 +1,7 @@
+KPI,Value,Note
+Final Level,1,Player level at last step
+Total XP,0,Cumulative XP
+Total Gold,0,Cumulative gold
+Total Reputation,0,Cumulative reputation
+Avg GearScore (Combat),0,Running average of combat item power
+% Non-Combat Beats,0,Share of non-combat steps

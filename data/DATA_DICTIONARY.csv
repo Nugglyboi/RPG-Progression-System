@@ -1,0 +1,15 @@
+Sheet,Column,Purpose,Usage in System,Conceptual Formula / Notes
+Simulator,BeatType,Row type (Combat / NonCombat),Controls combat-only logic,—
+Simulator,ZoneLevel,Difficulty target from StoryBeats,Scales challenge by region,
+Simulator,GearScore,Player power score,Feeds PowerRatio,
+Simulator,PowerRatio,Relative power vs zone,Feeds success curve,
+Simulator,SuccessChanceCombat,Chance to win combat,Controls outcome,"Logistic(PowerRatio) clamped [.35,.85]"
+Simulator,DeathChance,Chance to die in combat,Feeds Death?,
+Simulator,Death?,Combat result flag,Triggers RepairCost,
+Simulator,RepairCost,Gold lost if death,Economy sink,
+Simulator,NetGoldChange,Row net currency change,Feeds cumulative gold,
+Simulator,CumulativeGold/XP/Rep,Progress totals,Used for progression pacing,
+Simulator,DropSlot,Loot slot roll,Drives equip path,Threshold select
+Simulator,ItemPower,Power of drop,Compare vs equipped,—
+Simulator,Eq_*,Equipped slot powers,Persistent gear state,
+Simulator,GearScoreNote,Readable gear state,Debug aid,Text summary

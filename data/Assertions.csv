@@ -1,0 +1,5 @@
+Checkpoint     , Formula       , Pass, Note
+NoCirculars    , "IFERROR(1,0)",  0.0, Should evaluate without error
+PowerRatioValid,               ,     , 0<=PowerRatio<=10 (example bounds)
+LootRollValid  ,               ,     , 0<=LootRoll<=1 (if normalized)
+StepProgresses ,               ,     , Step t+1 exists when t outcome not terminal

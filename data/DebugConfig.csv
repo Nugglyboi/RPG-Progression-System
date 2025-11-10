@@ -1,0 +1,7 @@
+Key,Value,Notes
+RunID,1,Increment per full simulation run
+Tick,1,Increment per step within a run
+RNGSeed,123456789,Seed for deterministic RNG (LCG)
+MaxRows,100000,Max rows to keep in DebugLog
+DebounceKey,"RunID&"":""&Tick",Used by logger to avoid spam
+SimSheet,Simulator,Primary state source
