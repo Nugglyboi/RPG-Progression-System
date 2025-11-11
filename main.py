@@ -1,4 +1,5 @@
 import simulate
+import inputs
 
 if __name__ == "__main__":
-    simulate.simulate(50)
+    simulate.simulate(inputs.TURNS)
