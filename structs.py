@@ -1,6 +1,16 @@
 import parser
 
 
+class World(parser.CSVRow):
+    BeatNum: int = 0
+    Stage: str = ""
+    BeatName: str = ""
+    BeatStartStep: int = 0
+    ZoneLevel: int = 0
+    BeatDC: int = 0
+    ZoneTier: int = 1
+
+
 class Loot(parser.CSVRow):
     ItemID: int
     Slot: str
@@ -73,25 +83,12 @@ class Player:
 
     def culumative_exp(self) -> int:
         total = self._exp
-        
+
         for p in self._progression:
             if p.Level < self.level:
                 total += p.XP_to_Next
 
         return total
-
-
-class Inputs:
-    combat_chance: float
-
-
-class World(parser.CSVRow):
-    BeatNum: int
-    Stage: str
-    BeatName: str
-    BeatStartStep: int
-    ZoneLevel: int
-    BeatDC: int
 
 
 class Statistics:
@@ -101,3 +98,9 @@ class Statistics:
     Gold_Earned: int = 0
     DropID: int = 0
     Gold_Spent: int = 0
+
+    Power_Ratio: float = 0
+    SuccessChanceCombat: float = 0
+    DeathChance: float = 0
+    StatScore: float = 0
+    SuccessChance_NonCombat: float = 0

@@ -3,6 +3,7 @@ import story
 import loot
 import log
 import utils
+import inputs
 
 
 def combat(
@@ -10,11 +11,15 @@ def combat(
     world: structs.World,
     stats: structs.Statistics,
 ):
-    success = utils.chance(50)  # TODO generate chance
+    chance = utils.combat_chance(player, world)
+    success = utils.chance(chance)
+    stats.SuccessChanceCombat = chance
     stats.Success = success
 
     if success:
-        death = utils.chance(1)  # TODO generate chance
+        chance = utils.death_chance(player, world)
+        death = utils.chance(chance)
+        stats.DeathChance = chance
         stats.Death = death
 
         if not death:
@@ -37,12 +42,20 @@ def non_combat(
     world: structs.World,
     stats: structs.Statistics,
 ):
-    # decide success
-    # award exp
-    pass
+    # decide category for skill check
+
+    chance = utils.non_combat_chance(player, world)
+    success = utils.chance(chance)
+    stats.StatScore = utils.stat_score(player)
+    stats.SuccessChance_NonCombat = chance
+    stats.Success = success
+
+    if success:
+        # award exp
+        pass
 
 
-def simulate(turns: int, inputs: structs.Inputs):
+def simulate(turns: int):
     player = structs.Player()
     world = story.create_world()
 
@@ -50,13 +63,13 @@ def simulate(turns: int, inputs: structs.Inputs):
         stats = structs.Statistics()
 
         # decide action
-        if utils.chance(inputs.combat_chance):
+        if utils.chance(inputs.COMBAT_CHANCE):
             combat(player, world, stats)
         else:
             non_combat(player, world, stats)
 
         # change stage
-        story.progress_story(turn, world)
+        world = story.progress_story(turn, world)
 
         # record results
         log.record_turn(turn, player, world, stats)

@@ -61,7 +61,7 @@ def weighted_choice(weight_dict: dict[str, float]) -> str:
 
 
 def get_drop() -> structs.Loot | None:
-    if utils.chance(50):
+    if utils.chance(.50):
         return None  # no drop
 
     slot = weighted_choice(PieceWeights)
