@@ -1,5 +1,5 @@
 import structs
-import parser
+import csvparser as parser
 
 _story_beats = parser.read_csv("data/StoryBeats.csv", structs.World)
 

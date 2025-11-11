@@ -1,4 +1,4 @@
-import parser
+import csvparser as parser
 
 
 class World(parser.CSVRow):
@@ -31,17 +31,16 @@ class Equipment:
 
     def equip_best(self, loot: list[Loot]):
         for l in loot:
-            match l.Slot:
-                case "Weapon":
-                    self.weapon = max(self.weapon, l.BaseItemPower)
-                case "Helm":
-                    self.helm = max(self.helm, l.BaseItemPower)
-                case "Chest":
-                    self.chest = max(self.chest, l.BaseItemPower)
-                case "Boots":
-                    self.legs = max(self.legs, l.BaseItemPower)
-                case _:
-                    self.accessory = max(self.accessory, l.BaseItemPower)
+            if l.Slot == "Weapon":
+                self.weapon = max(self.weapon, l.BaseItemPower)
+            elif l.Slot == "Helm":
+                self.helm = max(self.helm, l.BaseItemPower)
+            elif l.Slot == "Chest":
+                self.chest = max(self.chest, l.BaseItemPower)
+            elif l.Slot == "Boots":
+                self.legs = max(self.legs, l.BaseItemPower)
+            else:
+                self.accessory = max(self.accessory, l.BaseItemPower)
 
 
 class Progression(parser.CSVRow):
