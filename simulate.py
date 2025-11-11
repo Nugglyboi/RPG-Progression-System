@@ -31,7 +31,7 @@ def combat(
             player.award_gold(gold)
             stats.Gold_Earned = gold
 
-            drop = loot.get_drop()
+            drop = loot.get_drop(world)
             if drop is not None:
                 player.award_loot(drop)
                 stats.DropID = drop.ItemID
@@ -42,17 +42,35 @@ def non_combat(
     world: structs.World,
     stats: structs.Statistics,
 ):
-    # decide category for skill check
+    category = utils.non_combat_category()
+    stats.OutcomeCategory = category.OutcomeCategory
+    stats.SkillDifficulty = category.CategoryDC
 
-    chance = utils.non_combat_chance(player, world)
+    stat = player.get_stat(category.StatKey)
+    stats.BaseStat = stat.Base
+    stats.PerLevel = stat.PerLevel
+
+    chance = utils.non_combat_chance(player, world, category.OutcomeCategory)
     success = utils.chance(chance)
-    stats.StatScore = utils.stat_score(player)
+    stats.StatScore = utils.stat_score(player, category.StatKey)
     stats.SuccessChance_NonCombat = chance
     stats.Success = success
 
+    # TODO calculate exp
+    # TODO calculate gold
     if success:
-        # award exp
-        pass
+        # nc_rules.csv
+        exp = 10
+        gold = 1
+    else:
+        exp = 10
+        gold = 0
+
+    player.award_exp(exp)
+    stats.XP_Earned = exp
+
+    player.award_gold(gold)
+    stats.Gold_Earned = gold
 
 
 def simulate(turns: int):

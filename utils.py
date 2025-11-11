@@ -1,8 +1,13 @@
+import parser
 import structs
 import random
 import math
 import params
 import inputs
+
+_nc_categories = parser.read_csv("data/NC_Categories.csv", structs.NCCategory)
+# _nc_rules ?
+# _non_combat ?
 
 
 def chance(percent: float) -> bool:
@@ -47,13 +52,12 @@ def power_ratio(player: structs.Player, world: structs.World) -> float:
     )
 
 
-def stat_score(player: structs.Player) -> float:
-    baseStat = 0  # stats.csv
-    levelGrowth = 0  # stats.csv
+def stat_score(player: structs.Player, stat_key: str) -> float:
+    stat = player.get_stat(stat_key)
 
     return (
-        baseStat
-        + (player.level * levelGrowth)
+        stat.Base
+        + (player.level * stat.PerLevel)
         + (player.equipment.get_score() / max(1, inputs.GEAR_STAT_SCALING))
     )
 
@@ -76,11 +80,17 @@ def combat_chance(player: structs.Player, world: structs.World) -> float:
     return success_chance
 
 
-def non_combat_chance(player: structs.Player, world: structs.World) -> float:
-    category_dc = 0  # nc_categories.csv
-    tn = category_dc + world.BeatDC
+def non_combat_chance(
+    player: structs.Player, world: structs.World, category_key: str
+) -> float:
+    category = _nc_categories[0]
+    for cat in _nc_categories:
+        if cat.OutcomeCategory == category_key:
+            category = cat
+
+    tn = category.CategoryDC + world.BeatDC
     uni = clamp(
-        (21 - (tn - stat_score(player))) / 20,
+        (21 - (tn - stat_score(player, category.StatKey))) / 20,
         floor=0,
         ceil=1,
     )
@@ -95,3 +105,9 @@ def non_combat_chance(player: structs.Player, world: structs.World) -> float:
 
 def death_chance(player: structs.Player, world: structs.World) -> float:
     return (1 - combat_chance(player, world)) * inputs.DEATH_SEVERITY
+
+
+def non_combat_category() -> structs.NCCategory:
+    # TODO properly decide category using NonCombat.csv
+    index = math.floor(random.random() * 5)
+    return _nc_categories[index]
