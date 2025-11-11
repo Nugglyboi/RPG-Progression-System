@@ -11,6 +11,12 @@ class World(parser.CSVRow):
     ZoneTier: int = 1
 
 
+class Stats(parser.CSVRow):
+    StatKey: str = ""
+    Base: int = 0
+    PerLevel: int = 0
+
+
 class Loot(parser.CSVRow):
     ItemID: int
     Slot: str
@@ -61,9 +67,11 @@ class Player:
     gold: int = 0
 
     _progression: list[Progression]
+    _stats: list[Stats]
 
     def __init__(self):
         self._progression = parser.read_csv("data/Progression.csv", Progression)
+        self._stats = parser.read_csv("data/Progression.csv", Stats)
 
     def award_exp(self, amount: int):
         self._exp += amount
@@ -90,6 +98,18 @@ class Player:
 
         return total
 
+    def get_stat(self, stat_key: str) -> Stats:
+        for stat in self._stats:
+            if stat.StatKey == stat_key:
+                return stat
+        return self._stats[0]
+
+
+class NCCategory(parser.CSVRow):
+    OutcomeCategory: str
+    StatKey: str
+    CategoryDC: int
+
 
 class Statistics:
     Success: bool = False
@@ -104,3 +124,9 @@ class Statistics:
     DeathChance: float = 0
     StatScore: float = 0
     SuccessChance_NonCombat: float = 0
+    OutcomeCategory: str = ""
+    SkillDifficulty: int = 0
+    CatStatKey: str = ""
+    CategoryDC: int = 0
+    BaseStat: int = 0
+    PerLevel: int = 0
