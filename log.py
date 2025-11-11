@@ -29,7 +29,7 @@ def record_turn(
     # write data
     with open(output_file, mode="a") as file:
         file.write(
-            f"{turn + 1},{player.level},{world.BeatNum},{world.BeatName},{world.ZoneLevel},{utils.power_ratio(player, world):.3f},BeatType,RandCat,OutcomeCategory,SkillDifficulty,{stats.Success},RepDelta,{stats.XP_Earned},{stats.Gold_Earned},{stats.DropID},{stats.SuccessChanceCombat:.2f},{stats.DeathChance:.2f},{stats.Death},RepairCost,Respec?,RespecCost,VendorTaxPct,{stats.Gold_Spent},{stats.Gold_Earned - stats.Gold_Spent},{player.gold},{player.culumative_exp()},CumulativeRep,{player.equipment.weapon},{player.equipment.chest},{player.equipment.helm},{player.equipment.legs},{player.equipment.accessory},{player.equipment.get_score()},CatStatKey,CategoryDC,{world.BeatDC},BaseStat,PerLevel,{stats.StatScore:.3f},{stats.SuccessChance_NonCombat:.2f}\n"
+            f"{turn + 1},{player.level},{world.BeatNum},{world.BeatName},{world.ZoneLevel},{utils.power_ratio(player, world):.3f},BeatType,RandCat,{stats.OutcomeCategory},{stats.SkillDifficulty},{stats.Success},RepDelta,{stats.XP_Earned},{stats.Gold_Earned},{stats.DropID},{stats.SuccessChanceCombat:.2f},{stats.DeathChance:.2f},{stats.Death},RepairCost,Respec?,RespecCost,VendorTaxPct,{stats.Gold_Spent},{stats.Gold_Earned - stats.Gold_Spent},{player.gold},{player.culumative_exp()},CumulativeRep,{player.equipment.weapon},{player.equipment.chest},{player.equipment.helm},{player.equipment.legs},{player.equipment.accessory},{player.equipment.get_score()},{stats.CatStatKey},{stats.CategoryDC},{world.BeatDC},{stats.BaseStat},{stats.PerLevel},{stats.StatScore:.3f},{stats.SuccessChance_NonCombat:.2f}\n"
         )
 
     with open(debug_file, mode="a") as file:

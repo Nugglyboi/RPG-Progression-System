@@ -5,14 +5,6 @@ import random
 
 _loot_table = parser.read_csv("data/LootTable.csv", structs.Loot)
 
-
-TierWeights = {
-    "T1": 0.4,
-    "T2": 0.3,
-    "T3": 0.2,
-    "T4": 0.1,
-}
-
 QualityWeights = {
     "T1": {
         "Common": 0.7,
@@ -60,13 +52,12 @@ def weighted_choice(weight_dict: dict[str, float]) -> str:
     return list(weight_dict.keys())[-1]  # Fallback
 
 
-def get_drop() -> structs.Loot | None:
+def get_drop(world: structs.World) -> structs.Loot | None:
     if utils.chance(.50):
         return None  # no drop
 
     slot = weighted_choice(PieceWeights)
-    tier = weighted_choice(TierWeights)
-    quality = weighted_choice(QualityWeights[tier])
+    quality = weighted_choice(QualityWeights[f"T{world.ZoneTier}"])
 
     possible_drops = [x for x in _loot_table if x.Slot == slot and x.Quality == quality]
     if not possible_drops:
