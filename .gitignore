@@ -2,6 +2,11 @@
 data/output.csv
 data/debug.csv
 
+# Generated visualizations
+success_curves.png
+xp_progression.png
+*.png
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
