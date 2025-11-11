@@ -1,6 +1,33 @@
 # RPG Progression System
 
+![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Status](https://img.shields.io/badge/status-active-success)
+
 A Python-based simulation system for modeling and balancing RPG progression mechanics, including combat, loot, experience, and story progression.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+  - [Basic Simulation](#basic-simulation)
+  - [Custom Configuration](#custom-configuration)
+  - [Visualizing Progression Curves](#visualizing-progression-curves)
+  - [Configuration Files](#configuration-files)
+- [Core Modules](#core-modules)
+- [Data Structures](#data-structures)
+- [Output](#output)
+- [Configuration Tips](#configuration-tips)
+- [Understanding the Visualizations](#understanding-the-visualizations)
+- [Use Cases](#use-cases)
+- [Example Workflow](#example-workflow)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ## Overview
 
@@ -18,6 +45,7 @@ This project simulates a player's journey through an RPG campaign, tracking prog
 - **Regression Testing**: Built-in assertion and regression testing framework for balance validation
 - **Detailed Data Logging**: Outputs detailed simulation results with turn-by-turn tracking
 - **Data Dictionary**: Comprehensive documentation of all data fields and calculations
+- **Visual Analytics**: Matplotlib-based curve visualization for success rates and XP progression
 
 ## Project Structure
 
@@ -33,6 +61,8 @@ RPG-Progression-System/
 ├── utils.py                  # Helper functions
 ├── inputs.py                 # Input parameter constants
 ├── params.py                 # Simulation parameter constants
+├── curve.py                  # Visualization tool for progression curves
+├── requirements.txt          # Python dependencies (matplotlib)
 └── data/
     ├── Inputs.json           # Primary configuration file (JSON)
     ├── Progression.csv       # Level and XP curve definitions
@@ -63,7 +93,25 @@ cd RPG-Progression-System
 
 2. Ensure you have Python 3.10+ installed (requires match/case syntax)
 
-3. No external dependencies required - uses Python standard library only
+3. Install dependencies (optional, only required for visualization):
+
+```bash
+pip install -r requirements.txt
+```
+
+Note: The core simulation uses Python standard library only. Matplotlib is only needed for curve visualization.
+
+## Quick Start
+
+```bash
+# Run simulation
+python main.py
+
+# Generate visualizations
+python curve.py
+```
+
+Results will be saved to the `data/` directory as CSV files, and visualizations will be saved as PNG images in the root directory.
 
 ## Usage
 
@@ -93,6 +141,26 @@ To adjust simulation parameters, edit the configuration files:
 - **`data/Inputs.json`**: Primary configuration for all simulation parameters
 - **`inputs.py`**: Python constants loaded from Inputs.json
 - **`params.py`**: Simulation algorithm parameters (success rates, slopes, etc.)
+
+### Visualizing Progression Curves
+
+Generate visual graphs of the progression system:
+
+```bash
+python curve.py
+```
+
+This will create two PNG files:
+
+- **`success_curves.png`**: Success chance curves for combat and non-combat encounters vs power delta
+- **`xp_progression.png`**: XP requirements, cumulative XP, growth rates, and gold rewards by level
+
+The visualizations help understand:
+
+- How success rates scale with player power relative to zone difficulty
+- The difference in difficulty between combat and non-combat encounters
+- XP progression pacing and level-up rates
+- Economy balance across levels
 
 ### Configuration Files
 
@@ -192,6 +260,58 @@ Core data structures:
 - `Equipment`: Item management and power calculations
 - `Inputs`: Configuration data container
 
+### curve.py
+
+Visualization module for progression analysis:
+
+- Loads data from `Curve.csv` and `Progression.csv`
+- Generates success chance curves showing combat vs non-combat difficulty
+- Creates XP progression graphs with multiple metrics
+- Produces high-resolution PNG outputs for documentation and analysis
+- Helps visualize power delta effects on encounter outcomes
+
+### loot.py
+
+Loot generation system:
+
+- Equipment drops with zone-appropriate power levels
+- Quality tier selection (Common/Rare/Epic/Legendary)
+- Drop slot determination using threshold probabilities
+- Item power calculation with quality and zone multipliers
+
+### story.py
+
+Story progression handler:
+
+- Manages Hero's Journey narrative beats
+- Updates world state based on simulation progress
+- Tracks zone transitions and difficulty scaling
+
+### log.py
+
+Data logging and output management:
+
+- Records turn-by-turn simulation results
+- Writes to multiple CSV outputs (Simulator.csv, Dashboard.csv)
+- Tracks player state, encounter outcomes, and resource changes
+
+### utils.py
+
+Helper functions and calculations:
+
+- Success chance calculations for combat and non-combat
+- Power ratio computations
+- Statistical utilities and random number generation
+- Difficulty curve implementations
+
+### parser.py
+
+CSV data loading utilities:
+
+- Reads configuration files from `data/` directory
+- Parses progression tables and story beats
+- Loads parameter configurations
+
 ## Data Structures
 
 ### Player
@@ -269,6 +389,38 @@ Test validation and regression testing results to ensure simulation consistency 
 - Adjust `DropThresholds` to control which equipment slots drop more frequently
 - Modify `ScoreWeights` to balance item power calculations
 
+## Understanding the Visualizations
+
+### Success Curves
+
+The success curves visualization shows how encounter difficulty changes based on the power difference between player and zone:
+
+- **Power Delta = 0**: Player and zone are evenly matched
+- **Negative Delta**: Player is weaker than the zone (harder encounters)
+- **Positive Delta**: Player is stronger than the zone (easier encounters)
+
+**Key Insights:**
+
+- Non-combat encounters use a steeper curve (NC_SLOPE = 1.3), making them more sensitive to power differences
+- Combat encounters use a gentler curve (COMBAT_SLOPE = 0.55), creating more consistent challenge
+- Success rates are clamped between 5% (floor) and 95% (cap) to prevent trivial or impossible encounters
+- The difference plot shows where non-combat is easier/harder than combat
+
+### XP Progression
+
+The XP progression visualization includes four key metrics:
+
+1. **XP per Level**: Shows the increasing XP requirement as you level up
+2. **Cumulative XP**: Total experience needed to reach each level from level 1
+3. **Growth Rate**: The rate of increase in XP requirements (indicates difficulty scaling)
+4. **Gold Rewards**: Comparison of rewards between combat and non-combat encounters
+
+**Balance Considerations:**
+
+- A consistent growth rate indicates smooth difficulty scaling
+- Large jumps in XP requirements can create pacing issues
+- Gold reward ratios should reflect the relative difficulty of encounter types
+
 ## Use Cases
 
 - **Game Balance Testing**: Test XP curves and progression pacing across multiple zones
@@ -277,3 +429,64 @@ Test validation and regression testing results to ensure simulation consistency 
 - **Narrative Pacing**: Ensure story beats align with player power levels using zone tiers
 - **Regression Testing**: Validate balance changes don't break intended progression
 - **Data Analysis**: Export simulation results for statistical analysis and visualization
+- **Design Documentation**: Use generated graphs to communicate balance decisions to team members
+
+## Example Workflow
+
+### Iterative Balance Tuning
+
+1. **Initial Setup**: Configure your progression parameters in `data/Inputs.json`
+2. **Run Simulation**: Execute `python main.py` to generate baseline data
+3. **Visualize**: Run `python curve.py` to see current balance state
+4. **Analyze**: Review `Simulator.csv` and generated graphs for issues
+5. **Adjust**: Modify parameters in configuration files
+6. **Re-test**: Run simulation again and compare results
+7. **Validate**: Check `REGRESSION.csv` to ensure changes don't break intended behavior
+
+### Testing a New XP Curve
+
+```python
+# 1. Modify XPExponent in data/Inputs.json
+{
+  "Parameters": {
+    "XPExponent": 1.5,  # Changed from 1.35
+    ...
+  }
+}
+
+# 2. Run simulation
+python main.py
+
+# 3. Generate visualization
+python curve.py
+
+# 4. Compare cumulative XP graph to previous version
+```
+
+### Balancing Combat vs Non-Combat
+
+```python
+# 1. Adjust slopes in params.py
+COMBAT_SLOPE = 0.6   # Increase from 0.55 for harder combat
+NC_SLOPE = 1.2       # Decrease from 1.3 for easier non-combat
+
+# 2. Run simulation and visualize
+python main.py && python curve.py
+
+# 3. Check success curve difference plot
+# - Should show more balanced difficulty between encounter types
+```
+
+## Contributing
+
+This is a personal project for RPG progression system design and testing. Feel free to fork and adapt for your own game projects.
+
+## License
+
+MIT License - Feel free to use this system for your game development projects.
+
+## Acknowledgments
+
+- Inspired by classic RPG progression systems and modern game design principles
+- Uses Hero's Journey narrative structure for story beat progression
+- Built with Python 3.10+ for modern language features
