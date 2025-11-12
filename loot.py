@@ -1,5 +1,5 @@
 import structs
-import parser
+import csvparser as parser
 import utils
 import random
 

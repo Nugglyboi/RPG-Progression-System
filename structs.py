@@ -1,4 +1,4 @@
-import parser
+import csvparser as parser
 
 
 class World(parser.CSVRow):
@@ -44,28 +44,47 @@ class Loot(parser.CSVRow):
 
 
 class Equipment:
+    # default starting equipment scores
     weapon: int = 15
     helm: int = 15
     chest: int = 15
     legs: int = 15
     accessory: int = 15
-
     def get_score(self) -> int:
         return self.weapon + self.helm + self.chest + self.legs + self.accessory
 
     def equip_best(self, loot: list[Loot]):
         for l in loot:
-            match l.Slot:
-                case "Weapon":
-                    self.weapon = max(self.weapon, l.BaseItemPower)
-                case "Helm":
-                    self.helm = max(self.helm, l.BaseItemPower)
-                case "Chest":
-                    self.chest = max(self.chest, l.BaseItemPower)
-                case "Boots":
-                    self.legs = max(self.legs, l.BaseItemPower)
-                case _:
-                    self.accessory = max(self.accessory, l.BaseItemPower)
+<<<<<<< Updated upstream
+            if l.Slot == "Weapon":
+                self.weapon = max(self.weapon, l.BaseItemPower)
+            elif l.Slot == "Helm":
+                self.helm = max(self.helm, l.BaseItemPower)
+            elif l.Slot == "Chest":
+                self.chest = max(self.chest, l.BaseItemPower)
+            elif l.Slot == "Boots":
+                self.legs = max(self.legs, l.BaseItemPower)
+            else:
+=======
+            # Accept multiple slot names and map them to the appropriate
+            # equipment attribute. Always take the max so gear never goes down.
+            slot = l.Slot
+            if slot == "Weapon":
+                self.weapon = max(self.weapon, l.BaseItemPower)
+            elif slot == "Helm":
+                self.helm = max(self.helm, l.BaseItemPower)
+            elif slot == "Chest":
+                self.chest = max(self.chest, l.BaseItemPower)
+            # Legs in CSV may be named "Boots"; accept both
+            elif slot in ("Boots", "Legs"):
+                self.legs = max(self.legs, l.BaseItemPower)
+            # Several items are accessories (Gloves, Ring, Amulet, etc.)
+            elif slot in ("Gloves", "Ring", "Amulet", "Accessory"):
+                self.accessory = max(self.accessory, l.BaseItemPower)
+            else:
+                # Unknown slot: treat as accessory to avoid lowering core slots
+>>>>>>> Stashed changes
+                self.accessory = max(self.accessory, l.BaseItemPower)
 
 
 class Progression(parser.CSVRow):
@@ -76,20 +95,20 @@ class Progression(parser.CSVRow):
 
 
 class Player:
-    _exp: int = 0
-    level: int = 1
-
-    _loot: list[Loot] = []
-    equipment = Equipment()
-
-    gold: int = 0
-
-    _progression: list[Progression]
-    _stats: list[Stats]
-
+    # NOTE: avoid class-level mutable defaults; initialize per-instance
     def __init__(self):
-        self._progression = parser.read_csv("data/Progression.csv", Progression)
-        self._stats = parser.read_csv("data/Stats.csv", Stats)
+        self._exp: int = 0
+        self.level: int = 1
+
+        self._loot: list[Loot] = []
+        self.equipment = Equipment()
+
+        self.gold: int = 0
+
+        self._progression: list[Progression] = parser.read_csv(
+            "data/Progression.csv", Progression
+        )
+        self._stats: list[Stats] = parser.read_csv("data/Stats.csv", Stats)
 
     def award_exp(self, amount: int):
         self._exp += amount
