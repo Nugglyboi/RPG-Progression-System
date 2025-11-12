@@ -1,4 +1,4 @@
-import parser
+import csvparser as parser
 import structs
 import random
 import math
@@ -14,7 +14,27 @@ def chance(percent: float) -> bool:
     return random.random() <= clamp(percent, floor=0, ceil=1)
 
 
-def logistic(x: float, *, L: float = 1.0, k: float = 1.0, x0: float = 0.0) -> float:
+def logistic(x: float, *args, L: float = 1.0, k: float = 1.0, x0: float = 0.0) -> float:
+    """Logistic function.
+
+    Accepts either keyword-style calls (recommended) such as
+        logistic(x, L=1.0, k=1.0, x0=0.0)
+    or a legacy positional form used in this codebase:
+        logistic(x, x0, k)
+
+    Positional mapping (if provided):
+        args[0] -> x0
+        args[1] -> k
+        args[2] -> L
+    """
+    # Map legacy positional args to their respective parameters
+    if len(args) >= 1:
+        x0 = args[0]
+    if len(args) >= 2:
+        k = args[1]
+    if len(args) >= 3:
+        L = args[2]
+
     return L / (1 + math.exp(-k * (x - x0)))
 
 
@@ -46,12 +66,21 @@ def clamp(x: float, *, floor: float, ceil: float):
 
 
 def power_ratio(player: structs.Player, world: structs.World) -> float:
-    return player.equipment.get_score() / (
+    # Use an exponential recommended-gear curve for demand so the expected
+    # gear increases per zone. This matches the original design where
+    # recommended gear grows multiplicatively with zone level.
+    #
+    # New demand formula requested:
+    #   demand = BASE_RECOMMENDED_GEAR * GEAR_GROWTH_PER_ZONE ** (ZoneLevel / ZONE_SCALE)
+    # We protect against extremely small/zero demand by taking max(1, ...).
+    demand = max(
+        1,
         inputs.BASE_RECOMMENDED_GEAR
-        * inputs.GEAR_GROWTH_PER_ZONE ** (world.ZoneLevel / inputs.ZONE_SCALE)
+        * (inputs.GEAR_GROWTH_PER_ZONE ** (world.ZoneLevel / inputs.ZONE_SCALE)),
     )
 
-
+    return player.equipment.get_score() / demand
+    
 def stat_score(player: structs.Player, stat_key: str) -> float:
     stat = player.get_stat(stat_key)
 
@@ -63,21 +92,27 @@ def stat_score(player: structs.Player, stat_key: str) -> float:
 
 
 def combat_chance(player: structs.Player, world: structs.World) -> float:
-    skill_noise = math.sqrt(-2 * math.log(random.random())) * math.cos(
-        2 * math.pi * random.random()
-    )
-    skill_difficulty = inputs.SKILL_DIFF_TIER_MULT + world.ZoneTier * skill_noise
+    """
+    Compute combat success chance based on the player's power ratio.
 
-    success_chance = 1 - (
-        skill_difficulty - (world.ZoneTier * inputs.SKILL_DIFF_TIER_MULT)
-    ) / (10 * inputs.SKILL_DIFF_ST_DEV)
-    success_chance = clamp(
-        success_chance,
-        floor=params.FLOOR_SUCCESS,
-        ceil=params.CEIL_SUCCESS,
-    )
+    The result is centered so that a power ratio of 1.0 => ~50% chance. Values
+    below 1.0 give <50% and above 1.0 give >50%. The logistic steepness is
+    controlled by the COMBAT_SLOPE parameter (or params.COMBAT_SLOPE) and the
+    returned chance is clamped to the configured FLOOR_SUCCESS/CEIL_SUCCESS.
 
-    return success_chance
+    We intentionally use the raw power ratio as the curve input so the mapping
+    is intuitive (ratio > 1 means player power > zone demand -> >50% chance).
+    """
+
+    ratio = power_ratio(player, world)
+    # Use params-defined slope/limits when available; fall back to inputs otherwise
+    slope = getattr(params, "COMBAT_SLOPE", inputs.COMBAT_SLOPE)
+    floor = getattr(params, "FLOOR_SUCCESS", 0.0)
+    ceil = getattr(params, "CEIL_SUCCESS", 1.0)
+
+    # Logistic centered at x0=1.0 (so ratio==1 -> 50%), L=1.0
+    raw = logistic(ratio, L=1.0, k=slope, x0=1.0)
+    return clamp(raw, floor=floor, ceil=ceil)
 
 
 def non_combat_chance(

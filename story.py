@@ -1,7 +1,7 @@
 import structs
-import parser
+import csvparser
 
-_story_beats = parser.read_csv("data/StoryBeats.csv", structs.World)
+_story_beats = csvparser.read_csv("data/StoryBeats.csv", structs.World)
 
 
 def create_world() -> structs.World:

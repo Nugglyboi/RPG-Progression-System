@@ -1,7 +1,7 @@
-import parser
+import csvparser
 
 
-class World(parser.CSVRow):
+class World(csvparser.CSVRow):
     BeatNum: int = 0
     Stage: str = ""
     BeatName: str = ""
@@ -11,7 +11,7 @@ class World(parser.CSVRow):
     ZoneTier: int = 1
 
 
-class NonCombat(parser.CSVRow):
+class NonCombat(csvparser.CSVRow):
     Category: str = ""
     T1: float = 0.0
     T2: float = 0.0
@@ -29,13 +29,13 @@ class NonCombat(parser.CSVRow):
     FailRisk: float = 0.0
 
 
-class Stats(parser.CSVRow):
+class Stats(csvparser.CSVRow):
     StatKey: str = ""
     Base: int = 0
     PerLevel: float = 0
 
 
-class Loot(parser.CSVRow):
+class Loot(csvparser.CSVRow):
     ItemID: int
     Slot: str
     Quality: str
@@ -44,11 +44,20 @@ class Loot(parser.CSVRow):
 
 
 class Equipment:
-    weapon: int = 0
-    helm: int = 0
-    chest: int = 0
-    legs: int = 0
-    accessory: int = 0
+    def __init__(
+        self,
+        weapon: int = 15,
+        helm: int = 15,
+        chest: int = 15,
+        legs: int = 15,
+        accessory: int = 15,
+    ):
+        # Initialize per-instance equipment values (avoid class-level shared state)
+        self.weapon = weapon
+        self.helm = helm
+        self.chest = chest
+        self.legs = legs
+        self.accessory = accessory
 
     def get_score(self) -> int:
         return self.weapon + self.helm + self.chest + self.legs + self.accessory
@@ -68,7 +77,7 @@ class Equipment:
                     self.accessory = max(self.accessory, l.BaseItemPower)
 
 
-class Progression(parser.CSVRow):
+class Progression(csvparser.CSVRow):
     Level: int
     XP_to_Next: int
     Gold_Combat: int
@@ -76,20 +85,17 @@ class Progression(parser.CSVRow):
 
 
 class Player:
-    _exp: int = 0
-    level: int = 1
-
-    _loot: list[Loot] = []
-    equipment = Equipment()
-
-    gold: int = 0
-
-    _progression: list[Progression]
-    _stats: list[Stats]
-
     def __init__(self):
-        self._progression = parser.read_csv("data/Progression.csv", Progression)
-        self._stats = parser.read_csv("data/Stats.csv", Stats)
+        # per-player mutable state
+        self._exp: int = 0
+        self.level: int = 1
+        self._loot: list[Loot] = []
+        self.equipment = Equipment()
+        self.gold: int = 0
+
+        # load progression and stats per-player instance
+        self._progression = csvparser.read_csv("data/Progression.csv", Progression)
+        self._stats = csvparser.read_csv("data/Stats.csv", Stats)
 
     def award_exp(self, amount: int):
         self._exp += amount
@@ -123,7 +129,7 @@ class Player:
         return self._stats[0]
 
 
-class NCCategory(parser.CSVRow):
+class NCCategory(csvparser.CSVRow):
     OutcomeCategory: str
     StatKey: str
     CategoryDC: int

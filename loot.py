@@ -1,9 +1,9 @@
 import structs
-import parser
+import csvparser
 import utils
 import random
 
-_loot_table = parser.read_csv("data/LootTable.csv", structs.Loot)
+_loot_table = csvparser.read_csv("data/LootTable.csv", structs.Loot)
 
 QualityWeights = {
     "T1": {
