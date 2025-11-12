@@ -55,7 +55,7 @@ RPG-Progression-System/
 ├── structs.py                # Data structures (Player, World, Equipment, etc.)
 ├── story.py                  # Story beat progression logic
 ├── loot.py                   # Loot generation and drop tables
-├── parser.py                 # CSV parsing utilities
+├── csvparser.py              # CSV parsing utilities
 ├── log.py                    # Data logging for analysis
 ├── utils.py                  # Helper functions
 ├── inputs.py                 # Input parameter constants
@@ -314,7 +314,7 @@ Helper functions and calculations:
 - Statistical utilities and random number generation
 - Difficulty curve implementations
 
-### parser.py
+### csvparser.py
 
 CSV data loading utilities:
 

@@ -120,6 +120,9 @@ class Player:
             if stat.StatKey == stat_key:
                 return stat
         return self._stats[0]
+    
+    def max_level(self) -> int:
+        return len(self._progression) + 1
 
 
 class NCCategory(parser.CSVRow):
