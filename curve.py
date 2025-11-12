@@ -18,7 +18,6 @@ def load_simulation_data():
     cumulative_gold = []
     cumulative_xp = []
     power_ratios = []
-    success_chances = []
     
     with open(output_file, 'r') as f:
         reader = csv.DictReader(f)
@@ -32,11 +31,9 @@ def load_simulation_data():
                 cumulative_xp.append(int(row['CumulativeXP']))
                 power_ratios.append(float(row['PowerRatio']))
                 
-                # Get success chance (prioritize combat, fallback to non-combat)
-                success = float(row.get('SuccessChanceCombat', 0))
-                if success == 0:
-                    success = float(row.get('SuccessChance_NonCombat', 0))
-                success_chances.append(success)
+                # Note: success chance removed from simulation loader to keep
+                # curve plotting separate and avoid mixing canonical/legacy fields.
+                # (Previously this collected SuccessChanceCombat / SuccessChance_NonCombat.)
             except (ValueError, KeyError) as e:
                 continue
     
@@ -47,8 +44,7 @@ def load_simulation_data():
         'gear_scores': gear_scores,
         'cumulative_gold': cumulative_gold,
         'cumulative_xp': cumulative_xp,
-        'power_ratios': power_ratios,
-        'success_chances': success_chances
+        'power_ratios': power_ratios
     }
 
 
@@ -277,11 +273,9 @@ def plot_simulation_results():
                     bbox=dict(boxstyle='round,pad=0.5', facecolor='yellow', alpha=0.7),
                     arrowprops=dict(arrowstyle='->', lw=1.5))
     
-    # Plot 4: Power Ratio and Success Chance
-    ax4_twin = ax4.twinx()
-    
-    line1 = ax4.plot(data['steps'], data['power_ratios'], 'o-', color='purple', 
-                     linewidth=2, markersize=3, label='Power Ratio', alpha=0.7)
+    # Plot 4: Power Ratio over time (success chance removed)
+    ax4.plot(data['steps'], data['power_ratios'], 'o-', color='purple', 
+             linewidth=2, markersize=3, label='Power Ratio', alpha=0.7)
     ax4.axhline(y=0, color='black', linestyle='-', linewidth=1.5, alpha=0.5)
     ax4.fill_between(data['steps'], 0, data['power_ratios'],
                      where=[pr > 0 for pr in data['power_ratios']],
@@ -289,23 +283,13 @@ def plot_simulation_results():
     ax4.fill_between(data['steps'], 0, data['power_ratios'],
                      where=[pr < 0 for pr in data['power_ratios']],
                      alpha=0.2, color='red', label='Disadvantage')
-    
-    line2 = ax4_twin.plot(data['steps'], [s * 100 for s in data['success_chances']], 
-                          'd-', color='orange', linewidth=2, markersize=3, 
-                          label='Success Rate', alpha=0.7)
-    
+
     ax4.set_xlabel('Step', fontsize=11, fontweight='bold')
     ax4.set_ylabel('Power Ratio (Player/Zone)', fontsize=10, fontweight='bold', color='purple')
-    ax4_twin.set_ylabel('Success Chance (%)', fontsize=10, fontweight='bold', color='orange')
-    ax4.set_title('Power Ratio & Success Rate Over Time', fontsize=13, fontweight='bold')
+    ax4.set_title('Power Ratio Over Time', fontsize=13, fontweight='bold')
     ax4.grid(True, alpha=0.3, linestyle='--')
     ax4.tick_params(axis='y', labelcolor='purple')
-    ax4_twin.tick_params(axis='y', labelcolor='orange')
-    
-    # Combine legends
-    lines = line1 + line2
-    labels = [l.get_label() for l in lines]
-    ax4.legend(lines, labels, loc='upper left', fontsize=9)
+    ax4.legend(loc='upper left', fontsize=9)
     
     plt.tight_layout()
     plt.savefig('simulation_results.png', dpi=300, bbox_inches='tight')
