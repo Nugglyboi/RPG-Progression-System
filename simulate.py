@@ -13,7 +13,7 @@ def combat(
     stats: structs.Statistics,
 ):
     chance = utils.combat_chance(player, world)
-    success = utils.chance(chance)
+    success = utils.skill_check(utils.power_ratio(player, world), world.BeatDC / 20)
     stats.SuccessChanceCombat = chance
     stats.Success = success
 

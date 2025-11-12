@@ -44,11 +44,11 @@ class Loot(parser.CSVRow):
 
 
 class Equipment:
-    weapon: int = 0
-    helm: int = 0
-    chest: int = 0
-    legs: int = 0
-    accessory: int = 0
+    weapon: int = 15
+    helm: int = 15
+    chest: int = 15
+    legs: int = 15
+    accessory: int = 15
 
     def get_score(self) -> int:
         return self.weapon + self.helm + self.chest + self.legs + self.accessory
