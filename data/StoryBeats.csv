@@ -2,9 +2,10 @@ BeatNum,Stage,BeatName,BeatStartStep,ZoneLevel,BeatDC,ZoneTier
 1,Ordinary World,Rookie on Rooftop Patrol,1,60,10,1
 2,Call to Adventure,Bank Heist Downtown,15,70,10,1
 3,Mentor,Training Day at Hero HQ,30,85,10,2
-4,Threshold,First Real Fight in the Alley,45,100,11,2
-5,Trials,Neighborhood Patrols,60,120,11,3
-6,Ordeal,Showdown with Local Villains,90,145,11,3
-7,Revelation,Secrets Beneath City Hall,120,170,12,4
-8,Transformation,New Suit Prototype,150,200,12,4
-9,Return,Hero of the Skyline,180,230,13,4
+4,Threshold,First Real Fight in the Alley,30,100,11,2
+5,Trials,Neighborhood Patrols,40,120,11,3
+6,Ordeal,Showdown with Local Villains,50,145,11,3
+7,Revelation,A Supervillain Emerges,70,200,13,3
+8,Transformation,New Suit Prototype,150,240,14,4
+9,Return,A New Threat Emerges,160,245,14,4
+10,Return,Hero of the Skyline,210,255,15,4

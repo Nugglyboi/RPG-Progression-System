@@ -7,10 +7,10 @@ _loot_table = csvparser.read_csv("data/LootTable.csv", structs.Loot)
 
 QualityWeights = {
     "T1": {
-        "Common": 0.7,
-        "Rare": 0.22,
-        "Epic": 0.07,
-        "Legendary": 0.01,
+        "Common": 0,
+        "Rare": 0,
+        "Epic": 0,
+        "Legendary": 0.0,
     },
     "T2": {
         "Common": 0.55,

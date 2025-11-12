@@ -80,6 +80,22 @@ def power_ratio(player: structs.Player, world: structs.World) -> float:
     )
 
     return player.equipment.get_score() / demand
+
+
+def power_ratio_display(player: structs.Player, world: structs.World) -> float:
+    """Return a display-friendly power ratio.
+
+    This uses the exact `power_ratio` calculation (so mechanics are unchanged)
+    and applies an exponent configured via `inputs.POWER_RATIO_DISPLAY_EXP` to
+    exaggerate values for logging/visualization. Keep the exponent at 1.0 to
+    leave the displayed value identical to the mechanical value.
+    """
+    base = power_ratio(player, world)
+    exp = getattr(inputs, "POWER_RATIO_DISPLAY_EXP", 1.0)
+    try:
+        return base ** exp
+    except Exception:
+        return base
     
 def stat_score(player: structs.Player, stat_key: str) -> float:
     stat = player.get_stat(stat_key)
