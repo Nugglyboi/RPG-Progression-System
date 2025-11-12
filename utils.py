@@ -63,21 +63,10 @@ def stat_score(player: structs.Player, stat_key: str) -> float:
 
 
 def combat_chance(player: structs.Player, world: structs.World) -> float:
-    skill_noise = math.sqrt(-2 * math.log(random.random())) * math.cos(
-        2 * math.pi * random.random()
-    )
-    skill_difficulty = inputs.SKILL_DIFF_TIER_MULT + world.ZoneTier * skill_noise
-
-    success_chance = 1 - (
-        skill_difficulty - (world.ZoneTier * inputs.SKILL_DIFF_TIER_MULT)
-    ) / (10 * inputs.SKILL_DIFF_ST_DEV)
-    success_chance = clamp(
-        success_chance,
-        floor=params.FLOOR_SUCCESS,
-        ceil=params.CEIL_SUCCESS,
-    )
-
-    return success_chance
+    ability = power_ratio(player, world) * (player.level / (player.max_level()))
+    difficulty = world.ZoneLevel / (story.max_zone_level() / 2)
+    chance = logistic(ability, difficulty, inputs.COMBAT_SLOPE)
+    return chance
 
 
 def non_combat_chance(
