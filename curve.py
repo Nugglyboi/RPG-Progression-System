@@ -19,6 +19,7 @@ def load_simulation_data():
     cumulative_xp = []
     power_ratios = []
     success_chances = []
+    combat_chances = []
     
     with open(output_file, 'r') as f:
         reader = csv.DictReader(f)
@@ -31,7 +32,10 @@ def load_simulation_data():
                 cumulative_gold.append(int(row['CumulativeGold']))
                 cumulative_xp.append(int(row['CumulativeXP']))
                 power_ratios.append(float(row['PowerRatio']))
-                
+                # Read combat chance directly (from simulation). Keep the
+                # existing 'success_chances' as a fallback/compatibility field.
+                combat_chances.append(float(row.get('SuccessChanceCombat', 0)))
+
                 # Get success chance (prioritize combat, fallback to non-combat)
                 success = float(row.get('SuccessChanceCombat', 0))
                 if success == 0:
@@ -48,7 +52,8 @@ def load_simulation_data():
         'cumulative_gold': cumulative_gold,
         'cumulative_xp': cumulative_xp,
         'power_ratios': power_ratios,
-        'success_chances': success_chances
+        'success_chances': success_chances,
+        'combat_chances': combat_chances
     }
 
 
@@ -290,13 +295,14 @@ def plot_simulation_results():
                      where=[pr < 0 for pr in data['power_ratios']],
                      alpha=0.2, color='red', label='Disadvantage')
     
-    line2 = ax4_twin.plot(data['steps'], [s * 100 for s in data['success_chances']], 
+    # Plot combat chance (from simulation CSV). Multiply by 100 for percent.
+    line2 = ax4_twin.plot(data['steps'], [s * 100 for s in data.get('combat_chances', data['success_chances'])], 
                           'd-', color='orange', linewidth=2, markersize=3, 
-                          label='Success Rate', alpha=0.7)
+                          label='Combat Chance', alpha=0.7)
     
     ax4.set_xlabel('Step', fontsize=11, fontweight='bold')
     ax4.set_ylabel('Power Ratio (Player/Zone)', fontsize=10, fontweight='bold', color='purple')
-    ax4_twin.set_ylabel('Success Chance (%)', fontsize=10, fontweight='bold', color='orange')
+    ax4_twin.set_ylabel('Combat Chance (%)', fontsize=10, fontweight='bold', color='orange')
     ax4.set_title('Power Ratio & Success Rate Over Time', fontsize=13, fontweight='bold')
     ax4.grid(True, alpha=0.3, linestyle='--')
     ax4.tick_params(axis='y', labelcolor='purple')

@@ -15,7 +15,27 @@ def chance(percent: float) -> bool:
     return random.random() <= clamp(percent, floor=0, ceil=1)
 
 
-def logistic(x: float, *, L: float = 1.0, k: float = 1.0, x0: float = 0.0) -> float:
+def logistic(x: float, *args, L: float = 1.0, k: float = 1.0, x0: float = 0.0) -> float:
+    """Logistic function.
+
+    Accepts either keyword-style calls (recommended) such as
+        logistic(x, L=1.0, k=1.0, x0=0.0)
+    or a legacy positional form used in this codebase:
+        logistic(x, x0, k)
+
+    Positional mapping (if provided):
+        args[0] -> x0
+        args[1] -> k
+        args[2] -> L
+    """
+    # Map legacy positional args to their respective parameters
+    if len(args) >= 1:
+        x0 = args[0]
+    if len(args) >= 2:
+        k = args[1]
+    if len(args) >= 3:
+        L = args[2]
+
     return L / (1 + math.exp(-k * (x - x0)))
 
 
@@ -47,12 +67,12 @@ def clamp(x: float, *, floor: float, ceil: float):
 
 
 def power_ratio(player: structs.Player, world: structs.World) -> float:
-    return player.equipment.get_score() / (
-        inputs.BASE_RECOMMENDED_GEAR
-        * inputs.GEAR_GROWTH_PER_ZONE ** (world.ZoneLevel / inputs.ZONE_SCALE)
-    )
-
-
+    # Use a direct, linear comparison of player gear score to zone demand so
+    # the ratio is intuitive: if player's gear > zone demand the ratio > 1.
+    # The demand scales with zone level times the number of gear slots.
+    demand = max(1, world.ZoneLevel * inputs.GEAR_SLOTS)
+    return player.equipment.get_score() / demand
+    
 def stat_score(player: structs.Player, stat_key: str) -> float:
     stat = player.get_stat(stat_key)
 

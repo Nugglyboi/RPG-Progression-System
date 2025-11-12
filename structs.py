@@ -81,6 +81,9 @@ class Player:
     _loot: list[Loot] = []
     equipment = Equipment()
 
+    # last smoothed power ratio value (internal). Negative means uninitialized.
+    _last_power_ratio: float = -1.0
+
     gold: int = 0
 
     _progression: list[Progression]
@@ -141,6 +144,9 @@ class Statistics:
 
     Power_Ratio: float = 0
     SuccessChanceCombat: float = 0
+    SkillCheckProbability: float = 0
+    Ability: float = 0
+    Difficulty: float = 0
     DeathChance: float = 0
     StatScore: float = 0
     SuccessChance_NonCombat: float = 0

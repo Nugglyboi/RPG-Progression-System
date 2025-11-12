@@ -12,17 +12,16 @@ def combat(
     world: structs.World,
     stats: structs.Statistics,
 ):
-    # compute an (independent) combat-chance metric and the skill-check result
     # skill_check returns (success_bool, success_probability). Unpack it so we
     # don't accidentally store a tuple into stats.Success (which would embed a
     # comma in the CSV and break column alignment).
-    _combat_chance = utils.combat_chance(player, world)
     success_bool, success_prob = utils.skill_check(
         utils.power_ratio(player, world), world.BeatDC / 20
     )
-    # record the skill-check probability (most useful for debugging) and the
-    # boolean success flag
-    stats.SuccessChanceCombat = success_prob
+    # record the skill-check probability separately; the independent combat
+    # chance metric is recorded at the start of the step so it is available on
+    # non-combat turns as well (see simulate()).
+    stats.SkillCheckProbability = success_prob
     stats.Success = success_bool
     # keep a local `success` variable for existing flow control below
     success = success_bool
@@ -86,6 +85,17 @@ def simulate(turns: int):
 
     for turn in range(turns):
         stats = structs.Statistics()
+
+        # compute and record the independent combat-chance metric every step
+        # so the CSV/plots show the combat difficulty even on non-combat steps
+        # Also compute the underlying ability and difficulty so we can export
+        # them for debugging/plotting.
+        pr = utils.power_ratio(player, world)
+        stats.Power_Ratio = pr
+        level_frac = player.level / max(1, player.max_level())
+        stats.Ability = pr * level_frac
+        stats.Difficulty = world.ZoneLevel / (story.max_zone_level() / 2)
+        stats.SuccessChanceCombat = utils.combat_chance(player, world)
 
         # decide action
         if utils.chance(inputs.COMBAT_CHANCE):
