@@ -145,8 +145,6 @@ class Statistics:
     Power_Ratio: float = 0
     SuccessChanceCombat: float = 0
     SkillCheckProbability: float = 0
-    Ability: float = 0
-    Difficulty: float = 0
     DeathChance: float = 0
     StatScore: float = 0
     SuccessChance_NonCombat: float = 0

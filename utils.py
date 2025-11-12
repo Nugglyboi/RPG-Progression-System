@@ -84,10 +84,27 @@ def stat_score(player: structs.Player, stat_key: str) -> float:
 
 
 def combat_chance(player: structs.Player, world: structs.World) -> float:
-    ability = power_ratio(player, world) * (player.level / (player.max_level()))
-    difficulty = world.ZoneLevel / (story.max_zone_level() / 2)
-    chance = logistic(ability, difficulty, inputs.COMBAT_SLOPE)
-    return chance
+    """
+    Compute combat success chance based on the player's power ratio.
+
+    The result is centered so that a power ratio of 1.0 => ~50% chance. Values
+    below 1.0 give <50% and above 1.0 give >50%. The logistic steepness is
+    controlled by the COMBAT_SLOPE parameter (or params.COMBAT_SLOPE) and the
+    returned chance is clamped to the configured FLOOR_SUCCESS/CEIL_SUCCESS.
+
+    We intentionally use the raw power ratio as the curve input so the mapping
+    is intuitive (ratio > 1 means player power > zone demand -> >50% chance).
+    """
+
+    ratio = power_ratio(player, world)
+    # Use params-defined slope/limits when available; fall back to inputs otherwise
+    slope = getattr(params, "COMBAT_SLOPE", inputs.COMBAT_SLOPE)
+    floor = getattr(params, "FLOOR_SUCCESS", 0.0)
+    ceil = getattr(params, "CEIL_SUCCESS", 1.0)
+
+    # Logistic centered at x0=1.0 (so ratio==1 -> 50%), L=1.0
+    raw = logistic(ratio, L=1.0, k=slope, x0=1.0)
+    return clamp(raw, floor=floor, ceil=ceil)
 
 
 def non_combat_chance(

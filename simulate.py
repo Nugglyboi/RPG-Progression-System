@@ -88,13 +88,6 @@ def simulate(turns: int):
 
         # compute and record the independent combat-chance metric every step
         # so the CSV/plots show the combat difficulty even on non-combat steps
-        # Also compute the underlying ability and difficulty so we can export
-        # them for debugging/plotting.
-        pr = utils.power_ratio(player, world)
-        stats.Power_Ratio = pr
-        level_frac = player.level / max(1, player.max_level())
-        stats.Ability = pr * level_frac
-        stats.Difficulty = world.ZoneLevel / (story.max_zone_level() / 2)
         stats.SuccessChanceCombat = utils.combat_chance(player, world)
 
         # decide action
