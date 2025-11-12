@@ -36,7 +36,7 @@ PieceWeights = {
     "Weapon": 0.15,
     "Chest": 0.25,
     "Helm": 0.2,
-    "Legs": 0.2,
+    "Boots": 0.2,
     "Accessory": 0.2,
 }
 

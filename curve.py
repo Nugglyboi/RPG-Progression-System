@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import csv
 from pathlib import Path
+import math
+import numpy as np
 
 
 def load_simulation_data():
@@ -18,6 +20,7 @@ def load_simulation_data():
     cumulative_gold = []
     cumulative_xp = []
     power_ratios = []
+    success_chances_combat = []
     
     with open(output_file, 'r') as f:
         reader = csv.DictReader(f)
@@ -30,6 +33,11 @@ def load_simulation_data():
                 cumulative_gold.append(int(row['CumulativeGold']))
                 cumulative_xp.append(int(row['CumulativeXP']))
                 power_ratios.append(float(row['PowerRatio']))
+                # SuccessChanceCombat is recorded by the simulator/log
+                try:
+                    success_chances_combat.append(float(row['SuccessChanceCombat']))
+                except Exception:
+                    success_chances_combat.append(0.0)
                 
                 # Note: success chance removed from simulation loader to keep
                 # curve plotting separate and avoid mixing canonical/legacy fields.
@@ -44,7 +52,8 @@ def load_simulation_data():
         'gear_scores': gear_scores,
         'cumulative_gold': cumulative_gold,
         'cumulative_xp': cumulative_xp,
-        'power_ratios': power_ratios
+        'power_ratios': power_ratios,
+        'success_chances_combat': success_chances_combat
     }
 
 
@@ -274,7 +283,8 @@ def plot_simulation_results():
                     arrowprops=dict(arrowstyle='->', lw=1.5))
     
     # Plot 4: Power Ratio over time (success chance removed)
-    ax4.plot(data['steps'], data['power_ratios'], 'o-', color='purple', 
+    # Primary: Power Ratio
+    pr_line = ax4.plot(data['steps'], data['power_ratios'], 'o-', color='purple', 
              linewidth=2, markersize=3, label='Power Ratio', alpha=0.7)
     ax4.axhline(y=0, color='black', linestyle='-', linewidth=1.5, alpha=0.5)
     ax4.fill_between(data['steps'], 0, data['power_ratios'],
@@ -286,10 +296,25 @@ def plot_simulation_results():
 
     ax4.set_xlabel('Step', fontsize=11, fontweight='bold')
     ax4.set_ylabel('Power Ratio (Player/Zone)', fontsize=10, fontweight='bold', color='purple')
-    ax4.set_title('Power Ratio Over Time', fontsize=13, fontweight='bold')
+    ax4.set_title('Power Ratio & Combat Success Over Time', fontsize=13, fontweight='bold')
     ax4.grid(True, alpha=0.3, linestyle='--')
     ax4.tick_params(axis='y', labelcolor='purple')
-    ax4.legend(loc='upper left', fontsize=9)
+
+    # Secondary: Combat Success Chance (0..1)
+    ax4_right = ax4.twinx()
+    # Convert 0/empty values to NaN so matplotlib will break the line on non-combat turns
+    sc_raw = data.get('success_chances_combat', [0]*len(data['steps']))
+    sc = [np.nan if (v is None or (isinstance(v, (int, float)) and (v == 0 or math.isnan(v)))) else v for v in sc_raw]
+    sc_line = ax4_right.plot(data[  'steps'], sc,
+                             '^-', color='orange', linewidth=2, markersize=4, label='Combat Success Chance', alpha=0.9)
+    ax4_right.set_ylabel('Combat Success Chance', fontsize=10, fontweight='bold', color='orange')
+    ax4_right.set_ylim(-0.05, 1.05)
+    ax4_right.tick_params(axis='y', labelcolor='orange')
+
+    # Combine legends from both axes
+    handles1, labels1 = ax4.get_legend_handles_labels()
+    handles2, labels2 = ax4_right.get_legend_handles_labels()
+    ax4.legend(handles1 + handles2, labels1 + labels2, loc='upper left', fontsize=9)
     
     plt.tight_layout()
     plt.savefig('simulation_results.png', dpi=300, bbox_inches='tight')
